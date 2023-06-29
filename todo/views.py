@@ -1,3 +1,4 @@
+from asyncio import tasks
 from django.shortcuts import render
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
@@ -10,7 +11,10 @@ def index(request):
                     due_at=make_aware(parse_datetime(request.POST['due_at'])))
         task.save()
 
-    tasks = Task.objects.all()
+    if request.GET.get('order') == 'due':
+        tasks = Task.objects.order_by('due_at')
+    else:
+        tasks = Task.objects.order_by('-posted_at')
 
     context = {
         'tasks': tasks
